@@ -26,6 +26,7 @@ describe("Should change a information of user", () => {
         }).then((res) => {
             expect(res.status).to.be.equal(200);
             expect(res.body).to.have.property("message", "Registro alterado com sucesso");
+            expect(res.body).to.be.a("object");
         });
     });
 });

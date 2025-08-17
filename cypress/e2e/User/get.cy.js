@@ -5,7 +5,6 @@ describe("Should return a list of users", () => {
             url: '/usuarios'
         }).then((res) => {
             expect(res.status).to.be.equal(200);
-            expect(res.body).to.be.a("object");
             expect(res.body).to.have.property("usuarios").and.to.be.a("array");
 
             res.body.usuarios.forEach(user => {
@@ -15,6 +14,7 @@ describe("Should return a list of users", () => {
                 expect(user.password).to.be.a("String");
                 expect(user.administrador).to.be.a("String")
                 expect(user._id).to.be.a("String");
+                expect(res.body).to.be.a("object");
             });
         });
     });
@@ -27,7 +27,6 @@ describe("Should return a user of list", () => {
             url: '/usuarios/0uxuPY0cbmQhpEz1'
         }).then((res) => {
             expect(res.status).to.be.equal(200);
-            expect(res.body).to.be.a("object");
             expect(res.body).to.include({
                 nome: "Fulano da Silva",
                 password: "teste",
@@ -39,7 +38,8 @@ describe("Should return a user of list", () => {
             expect(res.body.email).to.be.a("String");
             expect(res.body.password).to.be.a("String");
             expect(res.body.administrador).to.be.a("String");
-            expect(res.body._id).to.be.a("String")
+            expect(res.body._id).to.be.a("String");
+            expect(res.body).to.be.a("object");
         });
     });
 });
