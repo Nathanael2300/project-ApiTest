@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker';
 
-// Função para gerar dados únicos por teste
-function generateUserData(overrides = {}) {
+let generateUserData = (overrides = {}) => {
     return {
         nome: `${faker.name.firstName()} ${faker.name.lastName()}`,
         email: faker.internet.email(),
@@ -21,25 +20,27 @@ describe("Should register a user", () => {
             url: '/usuarios',
             body: createUser,
             failOnStatusCode: false
-        }).then((res) => {
-            expect(res.status).to.equal(201);
-            expect(res.body).to.have.property("message", "Cadastro realizado com sucesso");
-            expect(res.body).to.have.property("_id");
+        }).then((resPost) => {
+            expect(resPost.status).to.equal(201);
+            expect(resPost.body).to.have.property("message", "Cadastro realizado com sucesso");
+            expect(resPost.body).to.have.property("_id");
+            expect(resPost.body).to.be.a("object");
 
             const userId = res.body._id;
 
             cy.api({
                 method: 'GET',
                 url: `/usuarios/${userId}`
-            }).then((resUser) => {
-                expect(resUser.status).to.equal(200);
-                expect(resUser.body).to.have.property("nome", createUser.nome);
-                expect(resUser.body.nome).to.be.a("string");
-                expect(resUser.body).to.have.property("email", createUser.email);
-                expect(resUser.body.email).to.be.a("string");
-                expect(resUser.body.email).to.include("@");
-                expect(resUser.body).to.have.property("administrador", createUser.administrador);
-                expect(resUser.body.administrador).to.be.a("string");
+            }).then((resGet) => {
+                expect(resGet.status).to.equal(200);
+                expect(resGet.body).to.have.property("nome", createUser.nome);
+                expect(resGet.body.nome).to.be.a("string");
+                expect(resGet.body).to.have.property("email", createUser.email);
+                expect(resGet.body.email).to.be.a("string");
+                expect(resGet.body.email).to.include("@");
+                expect(resGet.body).to.have.property("administrador", createUser.administrador);
+                expect(resGet.body.administrador).to.be.a("string");
+                expect(resGet.body).to.be.a("object");
             });
         });
     });
@@ -55,9 +56,10 @@ describe("Should register a user", () => {
                 url: '/usuarios',
                 body: data,
                 failOnStatusCode: false
-            }).then((res) => {
-                expect(res.status).to.equal(400);
-                expect(res.body).to.have.property("nome", "nome não pode ficar em branco");
+            }).then((resPost) => {
+                expect(resPost.status).to.equal(400);
+                expect(resPost.body).to.have.property("nome", "nome não pode ficar em branco");
+                expect(resPost.body).to.be.a("object");
             });
         });
 
@@ -69,9 +71,11 @@ describe("Should register a user", () => {
                 url: '/usuarios',
                 body: data,
                 failOnStatusCode: false
-            }).then((res) => {
-                expect(res.status).to.be.equal(400);
-                expect(res.body).to.have.property("email", "email não pode ficar em branco");
+            }).then((resPost) => {
+                expect(resPost.status).to.be.equal(400);
+                expect(resPost.body).to.be.a("object");
+                expect(resPost.body).to.have.property("email", "email não pode ficar em branco");
+                expect(resPost.body).to.be.a("object");
             });
         });
 
@@ -83,9 +87,11 @@ describe("Should register a user", () => {
                 url: '/usuarios',
                 body: data,
                 failOnStatusCode: false
-            }).then((res) => {
-                expect(res.status).to.be.equal(400);
-                expect(res.body).to.have.property("password", "password não pode ficar em branco");
+            }).then((resPost) => {
+                expect(resPost.status).to.be.equal(400);
+                expect(resPost.body).to.be.a("object");
+                expect(resPost.body).to.have.property("password", "password não pode ficar em branco");
+                expect(resPost.body).to.be.a("object");
             });
         });
 
@@ -97,10 +103,10 @@ describe("Should register a user", () => {
                 url: '/usuarios',
                 body: data,
                 failOnStatusCode: false
-            }).then((res) => {
-                expect(res.status).to.be.equal(400);
-                expect(res.body).to.have.property("administrador", "administrador deve ser 'true' ou 'false'");
+            }).then((resPost) => {
+                expect(resPost.status).to.be.equal(400);
+                expect(resPost.body).to.have.property("administrador", "administrador deve ser 'true' ou 'false'");
+                expect(resPost.body).to.be.a("object");
             });
         });
     });
-
