@@ -22,21 +22,21 @@ describe("Should return a product of list", () => {
         cy.api({
             method: "GET",
             url: "/produtos/30KFjzDmd941Y6jA"
-        }).then((res) => {
-            expect(res.status).to.be.equal(200);
-            expect(res.body).to.include({
+        }).then((resGet) => {
+            expect(resGet.status).to.be.equal(200);
+            expect(resGet.body).to.include({
                 nome: "Mouse 1755106314082",
                 preco: 10,
                 descricao: "Mouse gamer",
                 quantidade: 1,
                 _id: "30KFjzDmd941Y6jA",
             });
-            expect(res.body.nome).to.be.a("String");
-            expect(res.body.preco).to.be.a("Number");
-            expect(res.body.descricao).to.be.a("String");
-            expect(res.body.quantidade).to.be.a("Number");
-            expect(res.body._id).to.be.a("String");
-            expect(res.body).to.be.a("Object");
+            expect(resGet.body.nome).to.be.a("String");
+            expect(resGet.body.preco).to.be.a("Number");
+            expect(resGet.body.descricao).to.be.a("String");
+            expect(resGet.body.quantidade).to.be.a("Number");
+            expect(resGet.body._id).to.be.a("String");
+            expect(resGet.body).to.be.a("Object");
         });
     });
 });

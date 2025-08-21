@@ -41,7 +41,7 @@ describe("Should delete a product of list", () => {
                 expect(resGet.status).to.be.equal(400);
                 expect(resGet.body).to.have.ownProperty("message", "Produto não encontrado").and.to.be.a("String");
                 expect(resGet.body).to.be.a("Object"); 
-            })
+            });
         });        
     });
 });

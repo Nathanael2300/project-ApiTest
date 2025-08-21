@@ -23,10 +23,10 @@ describe("Should change a information of user", () => {
             url: '/usuarios/0uxuPY0cbmQhpEz1',
             body: UpdateUser,
             failOnStatusCode: false
-        }).then((res) => {
-            expect(res.status).to.be.equal(200);
-            expect(res.body).to.have.property("message", "Registro alterado com sucesso");
-            expect(res.body).to.be.a("object");
+        }).then((resPut) => {
+            expect(resPut.status).to.be.equal(200);
+            expect(resPut.body).to.have.property("message", "Registro alterado com sucesso");
+            expect(resPut.body).to.be.a("object");
         });
     });
 });
