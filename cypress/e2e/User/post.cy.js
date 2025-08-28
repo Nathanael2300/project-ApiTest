@@ -26,7 +26,7 @@ describe("Should register a user", () => {
             expect(resPost.body).to.have.property("_id");
             expect(resPost.body).to.be.a("object");
 
-            const userId = res.body._id;
+            let userId = resPost.body._id;
 
             cy.api({
                 method: 'GET',

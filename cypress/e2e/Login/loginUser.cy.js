@@ -1,10 +1,24 @@
-const loginUser = (user = {}) => {
-    return {
-    email: "lugosilveira1@qa.com.br",
-    password: "teste",
-    ...user
+import { faker } from '@faker-js/faker';
+
+let userData;
+beforeEach(() => {
+    userData =  {
+        nome: `${faker.name.firstName()} ${faker.name.lastName()}`,
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        administrador: 'true',  
     };
-};
+    cy.api({
+        method: "POST",
+        url: "/usuarios",
+        body: userData
+    }).then((resPost) => {
+        expect(resPost.status).to.equal(201);
+        expect(resPost.body).to.have.property("message", "Cadastro realizado com sucesso");
+        expect(resPost.body).to.have.property("_id");
+        expect(resPost.body).to.be.a("object");
+    });
+});
 
 describe("Should perform the login which success", () => {
     it("perform the login which success", () => {
@@ -12,8 +26,8 @@ describe("Should perform the login which success", () => {
             method: "POST",
             url: "/login",
             body: {
-                email: "lugosilveira1@qa.com.br",
-                password: "teste",
+                email: userData.email,
+                password: userData.password,
             }
         }).then((res) => {
             expect(res.status).to.be.equal(200);
@@ -27,7 +41,10 @@ describe("Should perform the login which success", () => {
 
 describe("Should return the error 401 if credentials are not correct", () => {
     it("Return 401 if email are not correct", () => {
-        const data = loginUser({email: "email@Errado.com.br"});
+        const data = {
+            email: "email@Errado.com.br",
+            password: userData.password
+        };
         cy.api({
             method: "POST",
             url: "/login",
@@ -40,7 +57,10 @@ describe("Should return the error 401 if credentials are not correct", () => {
     });
 
     it("Return 401 if password are not correct", () => {
-        const data = loginUser({password: "senhaErrada"});
+        const data = {
+            email: userData.email,
+            password: "SenhaErrada"
+        }
         cy.api({
             method: "POST",
             url: "/login",
@@ -57,7 +77,10 @@ describe("Should return the error 401 if credentials are not correct", () => {
 describe("Should return the error 400 if the email not include '@'", () => {
     
     it("Return the error 400 if the email not include '@'", () => {
-        const data = loginUser({email: "lugosilveira1qa.com.br"});
+        const data = {
+            email: "testUsergmail.com",
+            password: userData.password
+        };
         cy.api({
             method: "POST",
             url: "/login",
@@ -73,7 +96,10 @@ describe("Should return the error 400 if the email not include '@'", () => {
 
 describe("Should return 400 if required fields are missing", () => {
     it("Return 400 if required email are missing", () => {
-        const data = loginUser({email: ""})
+        const data = {
+            email: "",
+            password: userData.password
+        };
         cy.api({
             method: "POST",
             url: "/login",
@@ -88,7 +114,10 @@ describe("Should return 400 if required fields are missing", () => {
     });
 
     it("Return 400 if required password are missing", () => {
-        const data = loginUser({password: ""})
+        const data = {
+            email: userData.email,
+            password: ""
+        };
         cy.api({
             method: "POST",
             url: "/login",

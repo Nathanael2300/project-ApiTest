@@ -8,22 +8,45 @@ let CreateProduct = {
 };
 
 describe("Should create a product", () => {
+    let userData;
+
+    beforeEach(() => {
+        userData = {
+            nome: `${faker.person.firstName()} ${faker.person.lastName()}`,
+            email: faker.internet.email(),
+            password: faker.internet.password(),
+            administrador: 'true'
+        };
+
+        cy.api({
+            method: "POST",
+            url: "/usuarios",
+            body: userData,
+            failOnStatusCode: false
+        }).then((resPost) => {
+            expect(resPost.status).to.equal(201);
+            expect(resPost.body).to.have.property("message", "Cadastro realizado com sucesso");
+            expect(resPost.body).to.have.property("_id");
+            expect(resPost.body).to.be.a("Object")
+        });
+    });
+
     it("Create a product", () => {
         cy.api({
             method: "POST",
             url: "/login",
             body: {
-                email: "507f1f77bcf86cd7@teste.com",
-                password: "123456",
+                email: userData.email,
+                password: userData.password
             },
             failOnStatusCode: false
-        }).then((resLogin) => {
-            expect(resLogin.status).to.be.equal(200);
-            expect(resLogin.body).to.have.property("message", "Login realizado com sucesso");
-            expect(resLogin.body).to.have.property("authorization").and.to.be.a("String");
-            expect(resLogin.body).to.be.a("Object");
+        }).then((resPost) => {
+            expect(resPost.status).to.be.equal(200);
+            expect(resPost.body).to.have.property("message", "Login realizado com sucesso");
+            expect(resPost.body).to.have.property("authorization").and.to.be.a("String");
+            expect(resPost.body).to.be.a("Object")
 
-            const token = resLogin.body.authorization;
+            let token = resPost.body.authorization;
 
             cy.api({
                 method: "POST",
@@ -33,13 +56,11 @@ describe("Should create a product", () => {
                 },
                 body: CreateProduct,
                 failOnStatusCode: false
-            }).then((resPut) => {
-                expect(resPut.status).to.be.equal(201)
-                expect(resPut.body).to.have.property("message", "Cadastro realizado com sucesso");
-                expect(resPut.body).to.have.property("_id");
-                expect(resPut.body.message).to.be.a("String");
-                expect(resPut.body._id).to.be.a("String");
-                expect(resLogin.body).to.be.a("Object");
+            }).then((resProduct) => {
+                expect(resProduct.status).to.be.equal(201);
+                expect(resProduct.body).to.have.property("message", "Cadastro realizado com sucesso");
+                expect(resProduct.body).to.have.property("_id").and.to.be.a("String");
+                expect(resProduct.body).to.be.a("Object");
             });
         });
     });

@@ -1,114 +1,94 @@
-describe("Should complete the purchase", () => {
-    it("Complete the purchase", () => {
+import { faker } from '@faker-js/faker';
+
+let userData;
+let token;
+let idProduct;
+
+let CreateProduct = {
+    nome: faker.commerce.productName(),
+    preco: faker.number.int({ min: 1, max: 100 }),
+    quantidade: faker.number.int({ min: 1, max: 100 }),
+    descricao: "teste desc"
+};
+
+beforeEach(() => {
+    userData = {
+        nome: `${faker.person.firstName()} ${faker.person.lastName()}`,
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        administrador: 'true'
+    };
+
+    cy.api({
+        method: "POST",
+        url: "/usuarios",
+        body: userData,
+        failOnStatusCode: false
+    }).then((resPost) => {
+        expect(resPost.status).to.equal(201);
+        expect(resPost.body).to.have.property("message", "Cadastro realizado com sucesso");
+        expect(resPost.body).to.have.property("_id");
+        expect(resPost.body).to.be.a("Object");
 
         cy.api({
             method: "POST",
             url: "/login",
             body: {
-                email: "tsilvaa01@qa.com.br",
-                password: "teste",
-            },
-            failOnStatusCode: false
-        }).then((resLogin) => {
-            expect(resLogin.status).to.be.equal(200);
-            expect(resLogin.body).to.have.property("message", "Login realizado com sucesso");
-            expect(resLogin.body).to.have.property("authorization").and.to.be.a("String");
-            expect(resLogin.body).to.be.a("Object");
+                email: userData.email,
+                password: userData.password,
+            }
+        }).then((resPost) => {
+            expect(resPost.status).to.be.equal(200);
+            expect(resPost.body).to.have.property("message", "Login realizado com sucesso");
+            expect(resPost.body.message).to.be.a("String");
+            expect(resPost.body.authorization).to.be.a("String");
+            expect(resPost.body).to.be.a("object");
 
-            const token = resLogin.body.authorization;
+            token = resPost.body.authorization;
 
             cy.api({
                 method: "POST",
-                url: "/carrinhos",
-                headers: {
-                    authorization: token
-                },
-                failOnStatusCode: false,
-                body: {
-                    produtos: [
-                        {
-                            idProduto: "QaZE46WR5nLyYNsu",
-                            quantidade: 4
-                        },
-                        {
-                            idProduto: "TccAW9s6ycnvAdKo",
-                            quantidade: 6
-                        },
-                        {
-                            idProduto: "UMBCvYY6lncXsaPm",
-                            quantidade: 8
-                        }
-                    ]
-                }
+                url: "/produtos",
+                headers: { authorization: token },
+                body: CreateProduct,
+                failOnStatusCode: false
             }).then((resPost) => {
                 expect(resPost.status).to.be.equal(201);
-                expect(resPost.body).to.have.property("message", "Cadastro realizado com sucesso").and.to.be.a("String");
-                expect(resPost.body).to.have.property("_id").and.to.be.a("String");
-            });
-
-
-            cy.api({
-                method: "DELETE",
-                url: "/carrinhos/cancelar-compra",
-                headers: {
-                    authorization: token
-                },
-                failOnStatusCode: false,
-            }).then((resDelete) => {
-                expect(resDelete.status).to.be.equal(200);
-                expect(resDelete.body).to.have.property("message", "Registro excluído com sucesso");
+                expect(resPost.body).to.have.property("message", "Cadastro realizado com sucesso");
+                idProduct = resPost.body._id
             });
         });
     });
 });
 
-
-describe("Should cancel the purchase", () => {
-    it("Cancel the purchase", () => {
+describe("Must complete shopping cart purchase", () => {
+    it("Complete shopping cart purchase", () => {
         cy.api({
             method: "POST",
-            url: "/login",
+            url: "carrinhos",
             body: {
-                email: "tsilvaa01@qa.com.br",
-                password: "teste",
-            },
-            failOnStatusCode: false
-        }).then((resLogin) => {
-            expect(resLogin.status).to.be.equal(200);
-            expect(resLogin.body).to.have.property("message", "Login realizado com sucesso");
-            expect(resLogin.body).to.have.property("authorization").and.to.be.a("String");
-            expect(resLogin.body).to.be.a("Object");
-
-            const token = resLogin.body.authorization;
+                "produtos": [
+                  {
+                    "idProduto": idProduct,
+                    "quantidade": 5
+                  },
+                ]
+              },
+              headers: { authorization: token },
+              failOnStatusCode: false
+        }).then((resPost) => {
+            expect(resPost.status).to.be.equal(201);
+            expect(resPost.body).to.have.property("message", "Cadastro realizado com sucesso");
 
             cy.api({
-                method: "POST",
-                url: "/carrinhos",
-                headers: {
-                    authorization: token
-                },
-                failOnStatusCode: false,
-                body: {
-                    produtos: [
-                        {
-                            idProduto: "QaZE46WR5nLyYNsu",
-                            quantidade: 4
-                        },
-                        {
-                            idProduto: "TccAW9s6ycnvAdKo",
-                            quantidade: 6
-                        },
-                        {
-                            idProduto: "UMBCvYY6lncXsaPm",
-                            quantidade: 8
-                        }
-                    ]
-                }
+                method: "DELETE",
+                url: "carrinhos/concluir-compra",
+                headers: { authorization: token },
+                failOnStatusCode: false
             }).then((resPost) => {
-                expect(resPost.status).to.be.equal(201);
-                expect(resPost.body).to.have.property("message", "Cadastro realizado com sucesso").and.to.be.a("String");
-                expect(resPost.body).to.have.property("_id").and.to.be.a("String");
-            })
-        })
-    });
+                expect(resPost.status).to.be.equal(200);
+                expect(resPost.body).to.have.property("message", "Registro excluído com sucesso");
+            });   
+        });
+    });         
 });
